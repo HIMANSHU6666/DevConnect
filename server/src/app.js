@@ -1,22 +1,53 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import productRoute from './routes/product.routes.js';
+import cartRoute from './routes/cart.routes.js';
+import orderRoutes from './routes/order.routes.js';
 
 const app = express();
 
-//Middlewares
-
-app.use(cors());
+// Middlewares
+app.use(cors({
+    origin: process.env.CLIENT_URL || true,
+    credentials: true
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-//Health Check
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoute);
+app.use("/api/cart", cartRoute);
+app.use("/api/orders", orderRoutes);
 
-app.get("/api/health",(req,res) => {
+// Health Check
+app.get("/api/health", (req, res) => {
     res.status(200).json({
-        message:"DevConnect Api is running",
-        success:true
+        message: "DevConnect API is running smoothly",
+        success: true,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// 404 Route Handler
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`
+    });
+});
+
+// Global Error Handler Middleware
+app.use((err, req, res, next) => {
+    console.error("Global Error Handler:", err.stack || err);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "Internal Server Error"
     });
 });
 
