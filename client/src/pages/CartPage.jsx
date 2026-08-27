@@ -4,6 +4,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CheckCircle2 } from 'luci
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
+import Payment from '../components/Payment.jsx'
 
 export const CartPage = () => {
   const { cart, updateQuantity, removeFromCart, clearCart, fetchCart } = useCart();
@@ -12,7 +13,8 @@ export const CartPage = () => {
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [error, setError] = useState('');
-
+  const [orderId,setOrderId]=useState(null);
+  
   if (!user) {
     return (
       <div className="container" style={{ padding: '4rem 1.5rem', textAlign: 'center' }}>
@@ -49,11 +51,21 @@ export const CartPage = () => {
     try {
       const res = await api.post('/orders/create');
       if (res.data.success) {
-        setCheckoutMessage('Order placed successfully! Redirecting to orders...');
-        fetchCart();
-        setTimeout(() => {
-          navigate('/orders');
-        }, 2000);
+        // setCheckoutMessage('Order placed successfully! Redirecting to orders...');
+        // fetchCart();
+        // setTimeout(() => {
+          // navigate('/orders');
+        // }, 2000);
+        const orderId = res.data.order._id;
+        console.log("created order id",orderId);
+        setOrderId(orderId);
+
+        const paymentRes = await api.post('/payment/create-payment',{
+          orderId
+        });
+        console.log("payment Response",paymentRes.data);
+        
+
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to place order');
@@ -216,6 +228,7 @@ export const CartPage = () => {
             >
               {checkingOut ? 'Processing Order...' : 'Proceed to Checkout'} <ArrowRight size={18} />
             </button>
+            {orderId && <Payment orderId={orderId} />}
           </div>
 
         </div>

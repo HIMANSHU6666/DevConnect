@@ -6,6 +6,8 @@ import userRoutes from './routes/user.routes.js';
 import productRoute from './routes/product.routes.js';
 import cartRoute from './routes/cart.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import chatRoutes from  './routes/chat.routes.js';
+import paymentRoutes from './routes/payment.route.js'
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/orders", orderRoutes);
+app.use("/api/ai",chatRoutes);
+app.use("/api/payment",paymentRoutes)
 
 // Health Check
 app.get("/api/health", (req, res) => {

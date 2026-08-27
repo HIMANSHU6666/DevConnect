@@ -8,6 +8,9 @@ export const CartProvider = ({ children }) => {
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [] });
   const [loading, setLoading] = useState(false);
+  const clearCartState =() => {
+    setCart({items:[]});
+  };
 
   const fetchCart = async () => {
     if (!user) {
@@ -90,7 +93,8 @@ export const CartProvider = ({ children }) => {
       addToCart,
       updateQuantity,
       removeFromCart,
-      clearCart
+      clearCart,
+      clearCartState
     }}>
       {children}
     </CartContext.Provider>

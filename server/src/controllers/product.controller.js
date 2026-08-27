@@ -113,9 +113,37 @@ export const myProducts = async (req, res) => {
     }
 };
 
+// // product.controller.js
+// export const updateProduct = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const sellerId = req.user.id;
+
+//     // Ensure seller can only edit their own product
+//     const product = await Product.findOne({ _id: id, sellerId });
+//     if (!product) {
+//       return res.status(404).json({ success: false, message: "Product not found or unauthorized" });
+//     }
+
+//     // Exclude productCode from updates if desired
+//     const { productCode, ...updateData } = req.body;
+
+//     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+//     return res.status(200).json({ success: true, message: "Product updated successfully", product: updatedProduct });
+//   } catch (error) {
+//     return res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
 // Update product (Seller only)
 export const updateProduct = async (req, res) => {
     try {
+        const {id} = req.params;
+        const sellerId = req.user.id;
+         const product = await Product.findOne({ _id: id, sellerId });
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found or unauthorized" });
+        }
         const {
             productName,
             productCode,
@@ -129,10 +157,7 @@ export const updateProduct = async (req, res) => {
             productStock
         } = req.body;
 
-        const product = await Product.findOne({ _id: req.params.id, sellerId: req.user.id });
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found or unauthorized" });
-        }
+       
 
         if (productName !== undefined) product.productName = productName;
         if (productCode !== undefined) product.productCode = productCode;

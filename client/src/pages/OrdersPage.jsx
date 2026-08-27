@@ -8,11 +8,13 @@ export const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState('');
+  // const [payment, setPayment]= useState([])
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
       const res = await api.get('/orders/my-orders');
+      console.log(res.data.orders);
       if (res.data.success) {
         setOrders(res.data.orders);
       }
@@ -57,6 +59,8 @@ export const OrdersPage = () => {
         return <span className="badge badge-amber">{status}</span>;
     }
   };
+
+  
 
   return (
     <div className="container" style={{ padding: '2.5rem 1.5rem' }}>
@@ -118,7 +122,10 @@ export const OrdersPage = () => {
                       ${order.totalAmount.toFixed(2)}
                     </span>
                   </div>
+                  
                   <div>{getStatusBadge(order.status)}</div>
+                  <div className={`badge ${order.paymentStatus === 'paid' ? 'badge-emerald':'badge-amber'}`}
+                  style={{gap:'0.5rem'}}><chechCircle2 size={13}/>{order.paymentStatus?.toUpperCase()}</div>
                 </div>
               </div>
 
@@ -165,6 +172,7 @@ export const OrdersPage = () => {
 
             </div>
           ))}
+          
         </div>
       )}
 

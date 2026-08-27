@@ -1,7 +1,7 @@
 import Order from '../models/order.js';
 import Cart from '../models/cart.js';
 import Product from '../models/product.js';
-
+import Payment from '../models/payment.js';
 // Create an order from buyer's cart
 export const createOrder = async (req, res) => {
     try {
@@ -43,8 +43,8 @@ export const createOrder = async (req, res) => {
             totalAmount
         });
 
-        cart.items = [];
-        await cart.save();
+        // cart.items = [];
+        // await cart.save();
 
         const populatedOrder = await Order.findById(order._id).populate("items.productId");
 
@@ -63,11 +63,20 @@ export const getOrders = async (req, res) => {
     try {
         const userId = req.user.id;
         const orders = await Order.find({ userId }).populate("items.productId").sort({ createdAt: -1 });
-
+        const ordersWithPayment = await Promise.all(orders.map(async(order) => {
+            const payment = await Payment.findOne({
+                orderId:order._id
+            }).sort({createdAt:-1});
+            return {
+                ...order.toObject(),
+                paymentStatus:payment?.status || "unpaid"
+            };
+        })
+    );
         return res.status(200).json({
             success: true,
-            count: orders.length,
-            orders
+            count: ordersWithPayment.length,
+            orders:ordersWithPayment
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message });

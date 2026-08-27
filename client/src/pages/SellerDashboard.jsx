@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Package, Edit, Trash2, ShieldAlert, CheckCircle, Clock } from 'lucide-react';
+import { PlusCircle, Package, Edit, Trash2, ShieldAlert, Clock, X } from 'lucide-react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,8 +12,11 @@ export const SellerDashboard = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  // New Product Form State
-  const [formData, setFormData] = useState({
+  // Track if we are editing an existing product
+  const [editingProductId, setEditingProductId] = useState(null);
+
+  // Form State
+  const initialFormState = {
     productName: '',
     productCode: '',
     productPrice: '',
@@ -22,7 +25,9 @@ export const SellerDashboard = () => {
     productDiscount: '0',
     productCategory: 'Software',
     productStock: '10'
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
 
   const fetchSellerData = async () => {
     try {
@@ -69,10 +74,35 @@ export const SellerDashboard = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleAddProduct = async (e) => {
+  // Pre-fill form for editing
+  const handleEditClick = (product) => {
+    setEditingProductId(product._id);
+    setFormData({
+      productName: product.productName || '',
+      productCode: product.productCode || '',
+      productPrice: product.productPrice || '',
+      productImage: product.productImage?.Image_url || product.productImage?.url || product.productImageUrl || '',
+      productDescription: product.productDescription || '',
+      productDiscount: product.productDiscount || '0',
+      productCategory: product.productCategory || 'Software',
+      productStock: product.productStock || '10'
+    });
+    setActiveTab('add');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Reset form and cancel edit
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setEditingProductId(null);
+  };
+
+  // Add OR Update Handler
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     setError('');
+
     try {
       const payload = {
         ...formData,
@@ -81,25 +111,25 @@ export const SellerDashboard = () => {
         productDiscount: Number(formData.productDiscount),
         productImageUrl: formData.productImage
       };
-      const res = await api.post('/products', payload);
+
+      let res;
+      if (editingProductId) {
+        // Update existing product
+        res = await api.put(`/products/${editingProductId}`, payload);
+      } else {
+        // Create new product
+        res = await api.post('/products', payload);
+      }
+
       if (res.data.success) {
-        setMessage('Product listed successfully!');
-        setFormData({
-          productName: '',
-          productCode: '',
-          productPrice: '',
-          productImage: '',
-          productDescription: '',
-          productDiscount: '0',
-          productCategory: 'Software',
-          productStock: '10'
-        });
+        setMessage(editingProductId ? 'Product updated successfully!' : 'Product listed successfully!');
+        resetForm();
         fetchSellerData();
         setActiveTab('products');
         setTimeout(() => setMessage(''), 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to list product');
+      setError(err.response?.data?.message || err.message || 'Operation failed');
     }
   };
 
@@ -142,21 +172,21 @@ export const SellerDashboard = () => {
 
         <div style={{ display: 'flex', gap: '0.8rem' }}>
           <button 
-            onClick={() => setActiveTab('products')} 
+            onClick={() => { setActiveTab('products'); resetForm(); }} 
             className={`btn ${activeTab === 'products' ? 'btn-primary' : 'btn-secondary'}`}
           >
             <Package size={16} /> My Listings ({myProducts.length})
           </button>
 
           <button 
-            onClick={() => setActiveTab('add')} 
+            onClick={() => { resetForm(); setActiveTab('add'); }} 
             className={`btn ${activeTab === 'add' ? 'btn-primary' : 'btn-secondary'}`}
           >
-            <PlusCircle size={16} /> Add Product
+            <PlusCircle size={16} /> {editingProductId ? 'Edit Product' : 'Add Product'}
           </button>
 
           <button 
-            onClick={() => setActiveTab('seller-orders')} 
+            onClick={() => { setActiveTab('seller-orders'); resetForm(); }} 
             className={`btn ${activeTab === 'seller-orders' ? 'btn-primary' : 'btn-secondary'}`}
           >
             <Clock size={16} /> Seller Orders ({sellerOrders.length})
@@ -199,7 +229,7 @@ export const SellerDashboard = () => {
             <Package size={48} color="var(--text-muted)" style={{ marginBottom: '1rem' }} />
             <h3 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>No Products Listed</h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Click "Add Product" to list your first item on DevConnect!</p>
-            <button onClick={() => setActiveTab('add')} className="btn btn-primary">
+            <button onClick={() => { resetForm(); setActiveTab('add'); }} className="btn btn-primary">
               <PlusCircle size={16} /> Add Product
             </button>
           </div>
@@ -208,7 +238,11 @@ export const SellerDashboard = () => {
             {myProducts.map(p => (
               <div key={p._id} className="glass-panel" style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
-                  <img src={p.productImage?.Image_url || p.productImage?.url} alt={p.productName} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', marginBottom: '0.8rem' }} />
+                  <img 
+                    src={p.productImage?.Image_url || p.productImage?.url || p.productImageUrl} 
+                    alt={p.productName} 
+                    style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: 'var(--radius-sm)', marginBottom: '0.8rem' }} 
+                  />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                     <span className="badge badge-cyan">{p.productCategory}</span>
                     <span className="badge badge-emerald">{p.productStock} in stock</span>
@@ -217,13 +251,18 @@ export const SellerDashboard = () => {
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: '0.6rem' }}>CODE: {p.productCode}</div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.8rem', borderTop: '1px solid var(--border-color)', marginTop: '0.8rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.8rem', borderTop: '1px solid var(--border-color)', marginTop: '0.8rem', gap: '0.5rem' }}>
                   <div style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--accent-cyan)' }}>
                     ${p.productPrice}
                   </div>
-                  <button onClick={() => handleDeleteProduct(p._id)} className="btn btn-danger btn-sm">
-                    <Trash2 size={15} /> Delete
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handleEditClick(p)} className="btn btn-secondary btn-sm" title="Edit Product">
+                      <Edit size={15} /> Edit
+                    </button>
+                    <button onClick={() => handleDeleteProduct(p._id)} className="btn btn-danger btn-sm" title="Delete Product">
+                      <Trash2 size={15} /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -231,12 +270,26 @@ export const SellerDashboard = () => {
         )
       )}
 
-      {/* Tab 2: Add Product Form */}
+      {/* Tab 2: Add / Edit Product Form */}
       {activeTab === 'add' && (
         <div className="glass-panel" style={{ maxWidth: '650px', margin: '0 auto', padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.6rem', marginBottom: '1.5rem' }}>Create New Product Listing</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.6rem' }}>
+              {editingProductId ? 'Edit Product Details' : 'Create New Product Listing'}
+            </h2>
+            {editingProductId && (
+              <button 
+                type="button" 
+                onClick={() => { resetForm(); setActiveTab('products'); }}
+                className="btn btn-secondary btn-sm"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+              >
+                <X size={14} /> Cancel
+              </button>
+            )}
+          </div>
           
-          <form onSubmit={handleAddProduct}>
+          <form onSubmit={handleFormSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
                 <label className="form-label">Product Name *</label>
@@ -244,8 +297,20 @@ export const SellerDashboard = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Product Code (Unique) *</label>
-                <input type="text" name="productCode" value={formData.productCode} onChange={handleInputChange} required placeholder="e.g. UIKIT-101" className="form-input" />
+                <label className="form-label">
+                  Product Code (Unique) {editingProductId ? '(Locked)' : '*'}
+                </label>
+                <input 
+                  type="text" 
+                  name="productCode" 
+                  value={formData.productCode} 
+                  onChange={handleInputChange} 
+                  required 
+                  disabled={Boolean(editingProductId)} // Edit ke time change nahi hoga
+                  placeholder="e.g. UIKIT-101" 
+                  className="form-input" 
+                  style={editingProductId ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                />
               </div>
             </div>
 
@@ -290,7 +355,7 @@ export const SellerDashboard = () => {
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.85rem', marginTop: '1rem' }}>
-              Publish Product Listing
+              {editingProductId ? 'Update Product Listing' : 'Publish Product Listing'}
             </button>
           </form>
         </div>
