@@ -13,7 +13,7 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-    origin: "https://himanshu6666.github.io/DevConnect",
+    origin: "https://himanshu6666.github.io",
     credentials: true
 }));
 app.use(express.json());
