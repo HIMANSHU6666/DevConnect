@@ -29,6 +29,13 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/ai",chatRoutes);
 app.use("/api/payment",paymentRoutes)
 
+// Base route for testing and cron-job ping
+app.get('/', (req, res) => {
+    res.status(200).json({
+        success: true, 
+        message: "DevConnect Backend is successfully running!" 
+    });
+});
 // Health Check
 app.get("/api/health", (req, res) => {
     res.status(200).json({
