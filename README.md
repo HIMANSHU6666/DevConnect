@@ -4,6 +4,52 @@
 
 ---
 
+## 🔗 Live Demo
+
+| | URL |
+|---|---|
+| 🌐 **Frontend (Live)** | [https://himanshu6666.github.io/DevConnect/](https://himanshu6666.github.io/DevConnect/) |
+| ⚙️ **Backend API** | [https://devconnect-backend-2wib.onrender.com](https://devconnect-backend-2wib.onrender.com) |
+| 🏥 **Health Check** | [https://devconnect-backend-2wib.onrender.com/api/health](https://devconnect-backend-2wib.onrender.com/api/health) |
+
+> **Note:** The backend is hosted on Render's free tier — it may take **30–60 seconds** to wake up on first request after inactivity.
+
+---
+
+## 🔑 Demo Credentials
+
+Try the app instantly with these test accounts — no sign-up required!
+
+### 🛒 Buyer Account
+| Field | Value |
+|---|---|
+| **Email** | `buyer@gmail.com` |
+| **Password** | `Password@123` |
+
+> Buyers can browse the marketplace, add products to cart, place orders, and make payments.
+
+### 🏪 Seller Account
+| Field | Value |
+|---|---|
+| **Email** | `seller@gmail.com` |
+| **Password** | `Password@123` |
+
+> Sellers can list/manage their products, view orders placed for their products, and track revenue from their Seller Dashboard.
+
+---
+
+## 🤖 AI Chatbot Access
+
+The **AI Chat Assistant** (powered by Google Gemini) is a **login-protected feature**.
+
+- 🔒 **Only logged-in users** can access and use the AI chatbot.
+- The chat bubble will appear **only after you log in**.
+- It supports both **General Mode** (coding/platform questions) and **RAG Mode** (answers using your live order, cart & product data from the database).
+
+> To try the AI chatbot, log in with any of the demo credentials above.
+
+---
+
 ## 📋 Table of Contents
 
 - [Overview](#-overview)

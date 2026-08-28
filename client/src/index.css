@@ -600,8 +600,81 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none;
 }
 
-/* Responsive */
+/* Responsive Styles - Mobile Friendly */
+@media (max-width: 768px) {
+  /* Containers */
+  .container {
+    padding: 0 1rem;
+  }
+
+  /* Typography */
+  h1 { font-size: 2rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.25rem !important; }
+
+  /* Navbar */
+  header .container {
+    gap: 0.5rem;
+  }
+  header nav {
+    gap: 1rem !important;
+  }
+  header nav a {
+    font-size: 0.85rem !important;
+  }
+  header .btn {
+    padding: 0.35rem 0.6rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Hide text labels on some buttons to save space on mobile */
+  header .btn span:not(.badge) {
+    display: none;
+  }
+
+  /* Marketplace & Layouts */
+  .glass-panel {
+    padding: 1rem !important;
+  }
+  
+  div[style*="grid-template-columns: 1fr"] {
+    gap: 1rem !important;
+  }
+  
+  /* Tables (Cart, Orders, Seller Dashboard) */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Modals */
+  div[style*="max-width: 650px"] {
+    padding: 1.2rem !important;
+  }
+  div[style*="max-width: 650px"] img {
+    height: 180px !important;
+  }
+  div[style*="max-width: 650px"] > div > div:nth-child(2) > div:nth-child(4) {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.8rem;
+  }
+
+  /* Flex Rows to Columns */
+  .mobile-col {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .mobile-text-center {
+    text-align: center !important;
+  }
+}
+
 @media (max-width: 480px) {
+  /* AI Chat */
   .ai-chat__window {
     width: calc(100vw - 2rem);
     right: 1rem;
@@ -617,5 +690,14 @@ h1, h2, h3, h4, h5, h6 {
   .ai-chat__fab {
     padding: 0.75rem;
     border-radius: 50%;
+  }
+
+  /* Filter & Search Bar */
+  div[style*="gap: 0.6rem; flex-wrap: wrap"] {
+    gap: 0.4rem !important;
+  }
+  .btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
   }
 }
