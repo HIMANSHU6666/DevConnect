@@ -14,7 +14,7 @@ import { AiChat } from './components/AiChat';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/DevConnect">
       <AuthProvider>
         <CartProvider>
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
